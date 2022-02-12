@@ -1,31 +1,32 @@
 #include <iostream>
 #include <map>
-#include <bits/stdc++.h>
-using namespace std;
+#include <vector>
+#include <sstream>
+#include <algorithm>
 
 void displayWelcome() {
-    cout << "------------------------------------------------------------------------------------------------------" << endl;
-    cout << "Welcome to learn2read" << endl;
-    cout << "The interactive tool designed to help you learn to read binary, octal and hexadecimal" << endl;
-    cout << "------------------------------------------------------------------------------------------------------" << endl;
+    std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Welcome to learn2read" << std::endl;
+    std::cout << "The interactive tool designed to help you learn to read binary, octal and hexadecimal" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------------------" << std::endl;
 }
 
-int getSelection(string title, map<int, string> &options) {
-    cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
-    cout << "Please select " << title << " " << endl;
+int getSelection(std::string title, std::map<int, std::string> &options) {
+    std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << std::endl;
+    std::cout << "Please select " << title << " " << std::endl;
     for (auto const& [key, val] : options) {
-        cout << key << ". " << val << endl; 
+        std::cout << key << ". " << val << std::endl; 
     }
     int option = 0;
     while (option < 1 || option > options.size()) {
-        cout << "Option: ";
-        cin >> option;
+        std::cout << "Option: ";
+        std::cin >> option;
     }
-    cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
+    std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << std::endl;
     return option;
 }
 
-string decimalToBinary(int decimal) {
+std::string decimalToBinary(int decimal) {
     int binaryArray[8]{-1,-1,-1,-1,-1,-1,-1,-1};
     int i = 0;
     while (decimal > 0) {
@@ -33,50 +34,67 @@ string decimalToBinary(int decimal) {
         decimal = decimal / 2;
         i++;
     }
-    string binaryString = "";
+    std::string binarystring = "";
     for (int i = 7; i >= 0 ; i--) {
         if (binaryArray[i] != -1) {
-            binaryString.append(to_string(binaryArray[i]));
+            binarystring.append(std::to_string(binaryArray[i]));
         } 
     }
-    return binaryString;
+    return binarystring;
 }
 
-string decimalToHexadecimal(int decimal) {
-    stringstream ss;
-    ss << hex << decimal;
-    string res ( ss.str() );
+std::string decimalToNnary(int decimal, int radix) {
+    char *charset = "0123456789abcdef";
+    if (radix < 2 || radix > 16) {
+        return "invalid radix";
+    }
+    std::string output;
+    while(decimal > 0) {
+        output += charset[decimal % radix];
+        decimal = decimal / radix;
+    }
+    std::reverse(output.begin(), output.end());
+    return output;
+}
+
+std::string decimalToHexadecimal(int decimal) {
+    std::stringstream ss;
+    ss << std::hex << decimal;
+    std::string res ( ss.str() );
     return res;
 }
 
-string decimalToOctal(int decimal) {
-    stringstream ss;
-    ss << oct << decimal;
-    string res ( ss.str() );
+std::string decimalToOctal(int decimal) {
+    std::stringstream ss;
+    ss << std::oct << decimal;
+    std::string res ( ss.str() );
     return res;
 }
 
-map<int, vector<string>> calculateProblemSet(int maxValue, int chosenBaseSystem) {
-    map <int, vector<string>> problemSet;
+std::map<int, std::vector<std::string>> calculateProblemSet(int maxValue, int chosenBaseSystem) {
+    std::map <int, std::vector<std::string>> problemSet;
     for (int i = 1; i <= maxValue; i++) {
         if (chosenBaseSystem == 1) {
-            vector<string> questionDetails = {decimalToBinary(i), "CORRECT", "NOT COMPLETE"};
+            std::vector<std::string> questionDetails = {decimalToBinary(i), "CORRECT", "NOT COMPLETE"};
             problemSet.insert(make_pair(i, questionDetails));
         } else if (chosenBaseSystem == 2) {
-            vector<string> questionDetails = {decimalToOctal(i), "CORRECT", "NOT COMPLETE"};
+            std::vector<std::string> questionDetails = {decimalToNnary(i, 3), "CORRECT", "NOT COMPLETE"};
             problemSet.insert(make_pair(i, questionDetails));
-        } else if (chosenBaseSystem == 3) {
-            vector<string> questionDetails = {decimalToHexadecimal(i), "CORRECT", "NOT COMPLETE"};
+        }else if (chosenBaseSystem == 3) {
+            std::vector<std::string> questionDetails = {decimalToOctal(i), "CORRECT", "NOT COMPLETE"};
+            problemSet.insert(make_pair(i, questionDetails));
+        } else if (chosenBaseSystem == 4) {
+            std::vector<std::string> questionDetails = {decimalToHexadecimal(i), "CORRECT", "NOT COMPLETE"};
             problemSet.insert(make_pair(i, questionDetails));
         }
     }
     return problemSet;
 }
 
-map<int, vector<string>> getMapOfValues() {
-    map <int, vector<string>> problemSet;
-    map <int, string> baseSystems { {1, "Learn2Read Binary"}, {2, "Learn2Read Octal"}, {3, "Learn2Read Hexadecimal"} };
-    map <int, string> difficulty { {1, "Level 1"}, {2, "Level 2"}, {3, "Level 3"} };
+std::map<int, std::vector<std::string>> getmapOfValues() {
+    std::map <int, std::vector<std::string>> problemSet;
+    std::map <int, std::string> baseSystems { {1, "Learn2Read Binary"}, {2, "Learn2Read Ternary"}, {3, "Learn2Read Octal"}, {4, "Learn2Read Hexadecimal"} };
+    std::map <int, std::string> difficulty { {1, "Level 1"}, {2, "Level 2"}, {3, "Level 3"}, {4, "Level 4"} };
     int chosenBaseSystem = getSelection("Base System", baseSystems);
     int chosenDifficulty = getSelection("Difficulty", difficulty);
     if (chosenDifficulty == 1) {
@@ -85,54 +103,56 @@ map<int, vector<string>> getMapOfValues() {
         problemSet = calculateProblemSet(100, chosenBaseSystem);
     } else if (chosenDifficulty == 3) {
         problemSet =  calculateProblemSet(255, chosenBaseSystem);
+    } else if (chosenDifficulty == 4) {
+        problemSet =  calculateProblemSet(1023, chosenBaseSystem);
     }
     return problemSet;
 }
 
-map<int, vector<string>> testStudent(map <int, vector<string>> problemSet) {
+std::map<int, std::vector<std::string>> testStudent(std::map <int, std::vector<std::string>> problemSet) {
     srand (time(NULL));
     for (int i = 0; i <= problemSet.size(); i++) {
         int questionNum = rand() % problemSet.size() + 1;
         if (problemSet[questionNum][2] == "NOT COMPLETE") {
-            cout << "Convert " << problemSet[questionNum][0] << " to decimal: ";
-            string answer;
-            cin >> answer;
+            std::cout << "Convert " << problemSet[questionNum][0] << " to decimal: ";
+            std::string answer;
+            std::cin >> answer;
             problemSet[questionNum][2] = answer;
-            if (answer != to_string(questionNum)) {
+            if (answer != std::to_string(questionNum)) {
                 problemSet[questionNum][1] = "INCORRECT";
-                cout << "Incorrect answer - Answer was " << questionNum << endl;
+                std::cout << "Incorrect answer - Answer was " << questionNum << std::endl;
             } else {
-                cout << "Correct!" << endl;
+                std::cout << "Correct!" << std::endl;
             }
         }
     }
     return problemSet;
 }
 
-void displayResults(map<int, vector<string>> problemSet) {
-    cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << endl;
-    cout << "Displaying final results: " << endl; 
+void displayResults(std::map<int, std::vector<std::string>> problemSet) {
+    std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" << std::endl;
+    std::cout << "Displaying final results: " << std::endl; 
     int correctAnswers = 0;
     for (auto const& [key, val] : problemSet) {
         if (val[1] == "CORRECT") {
             correctAnswers += 1;
         }
-         cout << "Convert " << val[0] << " to decimal. Correct Answer: " << key << ". " << "Your Answer: " << val[2] << ". " << val[1] << endl;
+         std::cout << "Convert " << val[0] << " to decimal. Correct Answer: " << key << ". " << "Your Answer: " << val[2] << ". " << val[1] << std::endl;
     }
-    cout << "Final Score: " << to_string(correctAnswers) << "/" << to_string(problemSet.size());
+    std::cout << "Final Score: " << std::to_string(correctAnswers) << "/" << std::to_string(problemSet.size());
 }
 
-void debugProblemSet(map<int, vector<string>> problemSet) {
+void debugProblemSet(std::map<int, std::vector<std::string>> problemSet) {
     for (auto const& [key, val] : problemSet) {
-         cout << "Convert " << val[0] << " to decimal. Correct Answer: " << key << ". " << "Your Answer: " << val[2] << ". " << val[1] << endl;  
+         std::cout << "Convert " << val[0] << " to decimal. Correct Answer: " << key << ". " << "Your Answer: " << val[2] << ". " << val[1] << std::endl;  
     }
 }
 
 int main() {
     while (true) {
         displayWelcome();
-        map<int, vector<string>> problemSet;
-        problemSet = getMapOfValues();
+        std::map<int, std::vector<std::string>> problemSet;
+        problemSet = getmapOfValues();
         //debugProblemSet(problemSet);
         problemSet = testStudent(problemSet);
         displayResults(problemSet);
